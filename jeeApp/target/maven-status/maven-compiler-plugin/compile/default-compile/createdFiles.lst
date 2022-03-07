@@ -1,0 +1,6 @@
+myapp\ICalculator.class
+myapp\MyApp.class
+myapp\ILogger.class
+myapp\SpringConfiguration.class
+myapp\IHello.class
+myapp\HelloService.class
