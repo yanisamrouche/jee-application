@@ -2,7 +2,6 @@ package myapp.jdbc;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +11,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -70,10 +68,17 @@ public class SpringNameDao {
         return jt.queryForObject(query, String.class);
     }
 
-    public List<myapp.jdbc.Name> findNames() throws SQLException {
+    public Collection<String> findNames() throws SQLException {
         var query = "Select * From NAME order by name";
-        List<myapp.jdbc.Name> list = jt.query(query, SpringNameDao::nameMapper);
-        return list;
+        var result = new LinkedList<String>();
+        try (var conn = newConnection()) {
+            var st = conn.createStatement();
+            var rs = st.executeQuery(query);
+            while (rs.next()) {
+                result.add(rs.getString("name"));
+            }
+        }
+        return result;
     }
 
     private static Name nameMapper(ResultSet rs, int i) throws SQLException {
@@ -84,19 +89,17 @@ public class SpringNameDao {
     }
 
     public void longWork() {
-        try (var c = newConnection()) {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-        } catch (SQLException e1) {
-        }
+        try (var c = newConnection()) {Thread.sleep(1000);}
+        catch (InterruptedException e) {}
+        catch (SQLException e1) {}
     }
+
     public void addNameTwoTimes(int id, String name) throws SQLException {
         /*
         addName(id, name);
         addName(id, name);
          */
     }
-
 
     public int countNames(String pattern){
         var query = "Select count(*) from NAME where name = ?";

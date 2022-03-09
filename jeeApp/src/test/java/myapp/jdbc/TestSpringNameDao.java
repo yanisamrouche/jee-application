@@ -25,8 +25,8 @@ public class TestSpringNameDao {
     public void testNames() throws SQLException {
         dao.deleteName(100);
         dao.deleteName(200);
-        dao.addName(100, "Hello");
-        dao.addName(200, "Salut");
+        dao.addName(new Name(100, "Hello"));
+        dao.addName(new Name(200, "Salut"));
         assertEquals("Hello", dao.findName(100));
         assertEquals("Salut", dao.findName(200));
         dao.findNames().forEach(System.out::println);
@@ -36,30 +36,20 @@ public class TestSpringNameDao {
     @Test
     public void testUpdateName() throws SQLException{
         dao.deleteName(400);
-        dao.addName(400,"Bonjour");
+        dao.addName(new Name(400,"Bonjour"));
         dao.updateName(400, "Bye");
         assertEquals("Bye", dao.findName(400));
         dao.findNames().forEach(System.out::println);
     }
 
-    @Test
-    public void testSqlInjectionForUpdate() throws SQLException{
-        dao.deleteName(500);
-        dao.addName(500, "Injection");
-        try{
-            dao.updateName(500, "test ; UPDATE NAME SET name=testSQLInjection WHERE id = 500");
-        }catch (SQLException e){
-            e.printStackTrace();
-        }
-//        assertEquals("testSQLInjection", dao.findName(500));
-    }
+
 
     @Test
     public void testErrors() throws SQLException {
         dao.deleteName(300);
         assertThrows(SQLException.class, () -> {
-            dao.addName(300, "Bye");
-            dao.addName(300, "Au revoir");
+            dao.addName(new Name(300, "Bye"));
+            dao.addName(new Name(300, "Au revoir"));
         });
         assertEquals("Bye", dao.findName(300));
     }
